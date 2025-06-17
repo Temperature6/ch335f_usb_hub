@@ -1,0 +1,25 @@
+#include <hardware/clocks.h>
+#include <pico/stdlib.h>
+#include <stdio.h>
+#include "INA219.h"
+
+INA219_t ina;
+uint16_t vbus, vshunt, current;
+
+int main() {
+	stdio_init_all();
+	printf("ina219\n");
+
+	INA219_Init(&ina, INA219_I2C_HANDLE, INA219_ADDRESS);
+
+	while (true) {
+		vbus = INA219_ReadBusVoltage(&ina);
+		vshunt = INA219_ReadShuntVolage(&ina);
+
+		printf("[%6.3f] vbus:%ld   vshunt:%ld   curr:%3.3f\n",
+			((float)to_ms_since_boot(get_absolute_time()) / 1000),
+			vbus, vshunt, (float)vshunt / 100 * 1000);
+		sleep_ms(1000);
+
+	}
+}

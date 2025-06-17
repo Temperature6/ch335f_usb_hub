@@ -1,0 +1,5 @@
+ToolSet: 11.0 w64 (local)@D:\Apps\Clion_OpenOCD_GCC_NEW\CLion 2024.1.1\bin\mingw
+Ninja: 1.11.1@D:\Apps\Clion_OpenOCD_GCC_NEW\CLion 2024.1.1\bin\ninja\win\x64\ninja.exe
+Options: 
+
+Options:-DCMAKE_MAKE_PROGRAM=D:/Apps/Clion_OpenOCD_GCC_NEW/CLion 2024.1.1/bin/ninja/win/x64/ninja.exe
