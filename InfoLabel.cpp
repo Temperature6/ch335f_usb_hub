@@ -8,20 +8,25 @@
 #include <iomanip>
 #include <string>
 #include <sstream>
+#include <algorithm>
 #include "ui.h"
 
 /**
  * @param ina219 用于测量总线电压电流的INA219句柄
  * @param panel lv panel控件
  * @param label 显示功率的label控件
+ * @param label_mask 功率占比遮罩层
  * @param active_color 有效数字颜色
  * @param non_act_color 无效数字（前导0）颜色
+ * @param thsh_volt 电压阈值，低于此电压认为无效
+ * @param max_current 最大电流，用于计算功率占比
  */
-info_label::info_label(INA219_t *ina219, lv_obj_t *panel, lv_obj_t *label,
-						std::string active_color, std::string non_act_color, float thsh_volt):
-	ina219(ina219), panel(panel), label(label),
+info_label::info_label(INA219_t *ina219, lv_obj_t *panel, lv_obj_t *label, lv_obj_t *label_mask,
+		std::string active_color, std::string non_act_color,
+		const float thsh_volt, const float max_current):
+	ina219(ina219), panel(panel), label(label), label_mask(label_mask),
 	active_color(std::move(active_color)), non_act_color(std::move(non_act_color)),
-	threshhold_voltage(thsh_volt)
+	threshhold_voltage(thsh_volt), max_current(max_current)
 {
 
 }
@@ -119,8 +124,27 @@ void info_label::set_label_text(const std::string& str) const {
 bool info_label::check_voltage() const {
 	if (voltage_v < threshhold_voltage) {
 		return false;
-	} else {
-		return true;
 	}
+	return true;
 }
+
+/**
+ * @brief 设置label遮罩层在整个panel中的显示占比
+ * @param pos_percent 百分比，范围0.0 ~ 1.0
+ */
+void info_label::set_label_mask_pos(const float pos_percent) const {
+	lv_obj_set_x(label_mask, static_cast<short>(map(pos_percent, 0, 1, GRAY_MASK_BEG, GARY_MASK_END)));
+}
+
+void info_label::update_label_mask() const {
+	set_label_mask_pos(current_ma / max_current);
+}
+
+float info_label::map(float val, const float old_min, const float old_max, const float new_min, const float new_max) {
+	val = std::clamp(val, old_min, old_max);
+	return (new_max - new_min) * (val - old_min) / (old_max - old_min) + new_min;
+}
+
+
+
 

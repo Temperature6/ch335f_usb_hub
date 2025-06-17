@@ -29,6 +29,7 @@ extern uint DmaChann;
 // #define CFG_NO_CS
 
 /* Pin connection*/
+#if 1
 #define ST7789_RST_PIN  16
 #define ST7789_DC_PIN   17
 
@@ -36,11 +37,21 @@ extern uint DmaChann;
 #define ST7789_CS_PIN   20
 #endif
 
-/* If u need Backlight control, uncomment below */
 #define BLK_PIN         21
 
 #define ST7789_SDA_PIN  19
 #define ST7789_SCL_PIN  18
+
+#else
+
+#define ST7789_RST_PIN  15
+#define ST7789_DC_PIN   14
+#define ST7789_CS_PIN   13
+#define BLK_PIN         9
+#define ST7789_SDA_PIN  11
+#define ST7789_SCL_PIN  10
+#endif
+
 /*
  * Comment one to use another.
  * 3 parameters can be choosed

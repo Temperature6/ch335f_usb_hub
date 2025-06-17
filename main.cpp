@@ -25,6 +25,7 @@
  * 2.7V为CH217K手册中规定的欠压保护电压
  */
 #define THRESHOLD_VOLTAGE	(2.7f)
+#define MAX_CURRENT_MA		(1500)
 
 #if 0
 #define LB_PORT1_ACT_COLOR	"7A0DF3"
@@ -80,14 +81,16 @@ int main() {
 	INA219_Init(&ina219_3_h, INA219_I2C_HANDLE, INA219_ADDR_PORT3);
 	INA219_Init(&ina219_4_h, INA219_I2C_HANDLE, INA219_ADDR_PORT4);
 
-	info_lb1 = new info_label(&ina219_1_h, uic_pl_port1, uic_lb_port1, LB_PORT1_ACT_COLOR, LB_ZERO_COLOR, THRESHOLD_VOLTAGE);
-	info_lb2 = new info_label(&ina219_2_h, uic_pl_port2, uic_lb_port2, LB_PORT2_ACT_COLOR, LB_ZERO_COLOR, THRESHOLD_VOLTAGE);
-	info_lb3 = new info_label(&ina219_3_h, uic_pl_port3, uic_lb_port3, LB_PORT3_ACT_COLOR, LB_ZERO_COLOR, THRESHOLD_VOLTAGE);
-	info_lb4 = new info_label(&ina219_4_h, uic_pl_port4, uic_lb_port4, LB_PORT1_ACT_COLOR, LB_ZERO_COLOR, THRESHOLD_VOLTAGE);
+	info_lb1 = new info_label(&ina219_1_h, uic_pl_port1, uic_lb_port1, uic_pl_shade_1, LB_PORT1_ACT_COLOR, LB_ZERO_COLOR, THRESHOLD_VOLTAGE, MAX_CURRENT_MA);
+	info_lb2 = new info_label(&ina219_2_h, uic_pl_port2, uic_lb_port2, uic_pl_shade_2, LB_PORT2_ACT_COLOR, LB_ZERO_COLOR, THRESHOLD_VOLTAGE, MAX_CURRENT_MA);
+	info_lb3 = new info_label(&ina219_3_h, uic_pl_port3, uic_lb_port3, uic_pl_shade_3, LB_PORT3_ACT_COLOR, LB_ZERO_COLOR, THRESHOLD_VOLTAGE, MAX_CURRENT_MA);
+	info_lb4 = new info_label(&ina219_4_h, uic_pl_port4, uic_lb_port4, uic_pl_shade_4, LB_PORT1_ACT_COLOR, LB_ZERO_COLOR, THRESHOLD_VOLTAGE, MAX_CURRENT_MA);
 	arr_info_label.push_back(info_lb1);
 	arr_info_label.push_back(info_lb2);
 	arr_info_label.push_back(info_lb3);
 	arr_info_label.push_back(info_lb4);
+
+	//info_lb1->set_label_mask_pos(0.5);
 
 	//数据刷新定时器
 	refresh_timer = lv_timer_create(refresh_data_cb, DATA_REFRESH_INTER, nullptr);
@@ -108,6 +111,7 @@ static void refresh_data_cb(lv_timer_t * timer) {
 	for (const auto info_label: arr_info_label) {
 		info_label->refresh_sensor_data();
 		info_label->set_label_text(info_label->fmt_info_str());
+		info_label->update_label_mask();
 		power_total += info_label->power_mw;
 
 		//当该接口的总线电压低于设定值时，隐藏其显示
