@@ -63,11 +63,11 @@ void info_label::set_enable(const bool enabled) {
 	}
 	panel_enabled = enabled;
 	if (enabled) {
-		// lv_obj_clear_flag(panel, LV_OBJ_FLAG_HIDDEN);
-		plenable_Animation(panel, 0);
+		lv_obj_clear_flag(panel, LV_OBJ_FLAG_HIDDEN);
+		// plenable_Animation(panel, 0);
 	} else {
-		// lv_obj_add_flag(panel, LV_OBJ_FLAG_HIDDEN);
-		pldisable_Animation(panel, 0);
+		lv_obj_add_flag(panel, LV_OBJ_FLAG_HIDDEN);
+		// pldisable_Animation(panel, 0);
 	}
 }
 
