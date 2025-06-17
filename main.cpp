@@ -121,13 +121,14 @@ static void refresh_data_cb(lv_timer_t * timer) {
 		}
 	}
 
+	//格式化：00.000 V
 	std::ostringstream oss_v;
 	oss_v << std::fixed << std::setprecision(3)
 			  << std::setfill('0') << std::setw(6)
 			  << volt_v
 			  << " V";
 	lv_label_set_text(uic_lb_volt, oss_v.str().c_str());
-
+	//格式化：00.000 W
 	std::ostringstream oss_tot_power;
 	oss_tot_power << std::fixed << std::setprecision(3)
 			  << std::setfill('0') << std::setw(6)
