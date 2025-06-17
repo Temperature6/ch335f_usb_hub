@@ -122,11 +122,17 @@ static void refresh_data_cb(lv_timer_t * timer) {
 	}
 
 	std::ostringstream oss_v;
-	oss_v << "0" << std::setprecision(volt_v > 1.0f ? 4 : 1) << volt_v << " V";
+	oss_v << std::fixed << std::setprecision(3)
+			  << std::setfill('0') << std::setw(6)
+			  << volt_v
+			  << " V";
 	lv_label_set_text(uic_lb_volt, oss_v.str().c_str());
 
 	std::ostringstream oss_tot_power;
-	oss_tot_power << "0" << std::setprecision(power_total > 1000.0f ? 4 : 3) << power_total / 1000 << (power_total < 1 ? "0" : "") << " W";
+	oss_tot_power << std::fixed << std::setprecision(3)
+			  << std::setfill('0') << std::setw(6)
+			  << (power_total / 1000.0f)
+			  << " W";
 	lv_label_set_text(uic_lb_tot_power, oss_tot_power.str().c_str());
 }
 
