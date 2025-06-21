@@ -189,9 +189,9 @@ void dma_handler() {
 }
 #endif
 
-void backlight_on_cb(lv_event_t * e) {
-	ST7789_SetBacklight(1);
-}
+// void backlight_on_cb(lv_event_t * e) {
+// 	ST7789_SetBacklight(1);
+// }
 
 #else /*Enable this file at the top*/
 
