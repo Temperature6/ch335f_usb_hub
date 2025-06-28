@@ -19,7 +19,7 @@ class info_label
 {
 	float max_current{};
     float mask_pos_old{};
-    lv_anim_t anim;       // 动画对象
+    lv_anim_t anim{};       // 动画对象
     const uint32_t duration = 490;
 
 	void ina219_get_volt_cur_power(float *volt_v, float *cur_mA, float *power_mW) const;
