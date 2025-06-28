@@ -11,6 +11,8 @@
 #include <algorithm>
 #include "ui.h"
 
+static void anim_mask_cb(void * var, int32_t v);
+
 /**
  * @param ina219 用于测量总线电压电流的INA219句柄
  * @param panel lv panel控件
@@ -21,14 +23,23 @@
  * @param thsh_volt 电压阈值，低于此电压认为无效
  * @param max_current 最大电流，用于计算功率占比
  */
-info_label::info_label(INA219_t *ina219, lv_obj_t *panel, lv_obj_t *label, lv_obj_t *label_mask,
+info_label::info_label(INA219_t *ina219, lv_obj_t *panel, lv_obj_t *label, lv_obj_t *power_label_mask,
 		std::string active_color, std::string non_act_color,
 		const float thsh_volt, const float max_current):
-	ina219(ina219), panel(panel), label(label), label_mask(label_mask),
+	ina219(ina219), panel(panel), label(label),
 	active_color(std::move(active_color)), non_act_color(std::move(non_act_color)),
-	threshhold_voltage(thsh_volt), max_current(max_current)
+	threshold_voltage(thsh_volt), max_current(max_current)
 {
+    label_mask = power_label_mask;
 
+    lv_anim_init(&anim);
+    lv_anim_set_var(&anim, label_mask); // 设置动画作用的对象
+    lv_anim_set_exec_cb(&anim, anim_mask_cb); // 设置动画执行的回调函数
+    lv_anim_set_values(&anim, 0, 0); // 设置动画的起始值和结束值
+    lv_anim_set_time(&anim, duration); // 设置动画持续时间
+    lv_anim_set_repeat_count(&anim, 0); // 设置动画不重复
+    lv_anim_set_path_cb(&anim, lv_anim_path_linear); // 设置动画路径为线性
+    lv_anim_set_var(&anim, label_mask);
 }
 
 /**
@@ -122,7 +133,7 @@ void info_label::set_label_text(const std::string& str) const {
  * @return false: 应当失能, true: 应当使能
  */
 bool info_label::check_voltage() const {
-	if (voltage_v < threshhold_voltage) {
+	if (voltage_v < threshold_voltage) {
 		return false;
 	}
 	return true;
@@ -131,13 +142,18 @@ bool info_label::check_voltage() const {
 /**
  * @brief 设置label遮罩层在整个panel中的显示占比
  * @param pos_percent 百分比，范围0.0 ~ 1.0
+ * @param pos_before 此次更新之前的位置，用于形成动画
  */
-void info_label::set_label_mask_pos(const float pos_percent) const {
-	lv_obj_set_x(label_mask, static_cast<short>(map(pos_percent, 0, 1, GRAY_MASK_BEG, GARY_MASK_END)));
+void info_label::set_label_mask_pos(const float pos_percent, const float pos_before) {
+    //lv_obj_set_x(label_mask, static_cast<short>(map(pos_percent, 0, 1, GRAY_MASK_BEG, GARY_MASK_END)));
+    lv_anim_set_values(&anim, static_cast<short>(map(pos_before, 0, 1, GRAY_MASK_BEG, GARY_MASK_END)),
+                       static_cast<short>(map(pos_percent, 0, 1, GRAY_MASK_BEG, GARY_MASK_END)));
+    lv_anim_start(&anim);
 }
 
-void info_label::update_label_mask() const {
-	set_label_mask_pos(current_ma / max_current);
+void info_label::update_label_mask() {
+	set_label_mask_pos(current_ma / max_current, mask_pos_old);
+    mask_pos_old = current_ma / max_current;
 }
 
 float info_label::map(float val, const float old_min, const float old_max, const float new_min, const float new_max) {
@@ -145,6 +161,6 @@ float info_label::map(float val, const float old_min, const float old_max, const
 	return (new_max - new_min) * (val - old_min) / (old_max - old_min) + new_min;
 }
 
-
-
-
+void anim_mask_cb(void * var, int32_t v) {
+    lv_obj_set_x((lv_obj_t *)var, v);
+}
