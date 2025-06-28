@@ -2,7 +2,7 @@
 
 # This can be dropped into an external project to help locate this SDK
 # It should be include()ed prior to project()
-
+set(PICO_TOOLCHAIN_PATH "D:\\Apps\\Clion_OpenOCD_GCC_NEW\\gcc-arm-none-eabi-14.2.1-2024.11.19\\bin")
 set(PICO_SDK_PATH "D:/EmbeddedDevelop/rpi_pico/sdk_151/pico-sdk")
 #set(PICO_SDK_PATH "D:/EmbeddedDevelop/rpi_pico/sdk_210/pico-sdk")
 
