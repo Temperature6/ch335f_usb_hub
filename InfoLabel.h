@@ -21,10 +21,12 @@ class info_label
     float mask_pos_old{};
     lv_anim_t anim{};       // 动画对象
     const uint32_t duration = 490;
+    const uint32_t panel_pos_threshold = 150;
 
 	void ina219_get_volt_cur_power(float *volt_v, float *cur_mA, float *power_mW) const;
 	static int get_digit_count(int num);
 	static float map(float val, float old_min, float old_max, float new_min, float new_max);
+    bool panel_is_enabled() const;
 public:
 	float voltage_v{};
 	float current_ma{};
@@ -36,7 +38,6 @@ public:
 	std::string active_color;
 	std::string non_act_color;
 	float threshold_voltage{};
-	bool panel_enabled = true;
 	info_label(INA219_t *ina219, lv_obj_t *panel, lv_obj_t *label, lv_obj_t *power_label_mask,
 		std::string active_color, std::string non_act_color,
 		float thsh_volt, float max_current);

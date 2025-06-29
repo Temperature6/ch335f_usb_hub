@@ -69,16 +69,15 @@ void info_label::ina219_get_volt_cur_power(float *volt_v, float *cur_mA, float *
  * @param enabled 是否使能
  */
 void info_label::set_enable(const bool enabled) {
-	if (panel_enabled == enabled) {
-		return;
-	}
-	panel_enabled = enabled;
+    if (panel_is_enabled() == enabled)
+        return;
+
 	if (enabled) {
-		lv_obj_clear_flag(panel, LV_OBJ_FLAG_HIDDEN);
-		// plenable_Animation(panel, 0);
+//		lv_obj_clear_flag(panel, LV_OBJ_FLAG_HIDDEN);
+		 plenable_Animation(panel, 0);
 	} else {
-		lv_obj_add_flag(panel, LV_OBJ_FLAG_HIDDEN);
-		// pldisable_Animation(panel, 0);
+//		lv_obj_add_flag(panel, LV_OBJ_FLAG_HIDDEN);
+		 pldisable_Animation(panel, 0);
 	}
 }
 
@@ -159,6 +158,16 @@ void info_label::update_label_mask() {
 float info_label::map(float val, const float old_min, const float old_max, const float new_min, const float new_max) {
 	val = std::clamp(val, old_min, old_max);
 	return (new_max - new_min) * (val - old_min) / (old_max - old_min) + new_min;
+}
+
+bool info_label::panel_is_enabled() const {
+    lv_obj_update_layout(panel);
+    uint32_t x = lv_obj_get_x(panel);
+    if (x >= panel_pos_threshold)
+    {
+        return false;
+    }
+    return true;
 }
 
 void anim_mask_cb(void * var, int32_t v) {
