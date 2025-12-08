@@ -27,7 +27,8 @@ add_subdirectory(lvgl-8.3.5)
 add_executable(${PROJECT_NAME} main.cpp InfoLabel.cpp
         ${SRC_INA219} ${SRC_ST7789} ${SRC_UI}
         lvgl-8.3.5/lv_port_disp.c
-        lvgl-8.3.5/lv_port_indev.c)
+        lvgl-8.3.5/lv_port_indev.c
+        boot_img.c)
 target_link_libraries(${PROJECT_NAME} pico_stdlib hardware_i2c hardware_spi hardware_dma lvgl lvgl::demos)
 
 # create map/bin/hex/uf2 file in addition to ELF.
