@@ -129,7 +129,7 @@ void info_label::set_label_text(const std::string& str) const {
 
 /**
  * @brief 检查当前电压是否为有效电压
- * @return false: 应当失能, true: 应当使能
+ * @return false: 失能状态, true: 使能状态
  */
 bool info_label::check_voltage() const {
 	if (voltage_v < threshold_voltage) {

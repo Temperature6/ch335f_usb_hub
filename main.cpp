@@ -20,6 +20,7 @@
 #define INA219_ADDR_PORT4	0x45
 
 #define DATA_REFRESH_INTER	(500)	//数据刷新间隔（ms)
+#define BOOT_IMG_LAST       (1000)  //启动图展示时间
 /*
  *认为端口被关闭的门限电压，低于此电压则认为端口被关闭
  * 2.7V为CH217K手册中规定的欠压保护电压
@@ -57,6 +58,13 @@ bool alarm_1ms_callback(struct repeating_timer *);
 static void refresh_data_cb(lv_timer_t * timer);
 static void backlight_on_cb(lv_timer_t * timer);
 
+extern const unsigned char gImage_boot_img[64800];
+
+/*
+ * TODO: 检测到所有口失效一分钟之后关闭屏幕显示，停止lvgl刷新，进入低功耗模式（？）
+ * TODO：每隔1s检测一次四口电压，有效时恢复显示
+ */
+
 int main() {
 	set_sys_clock_khz(130000, true);
 
@@ -66,20 +74,27 @@ int main() {
 
 	printf("CH335F UBS HUB Begin\n");
 
+    //初始化INA219
+    INA219_Init(&ina219_1_h, INA219_I2C_HANDLE, INA219_ADDR_PORT1);
+    INA219_Init(&ina219_2_h, INA219_I2C_HANDLE, INA219_ADDR_PORT2);
+    INA219_Init(&ina219_3_h, INA219_I2C_HANDLE, INA219_ADDR_PORT3);
+    INA219_Init(&ina219_4_h, INA219_I2C_HANDLE, INA219_ADDR_PORT4);
+
 	lv_init();
 	lv_port_disp_init();
+
+    //显示启动图
+    ST7789_DrawImage(0, 0, 240, 135, (const uint16_t*)gImage_boot_img);
+    sleep_ms(BOOT_IMG_LAST);
+
+    //等待端口出现有效电压之后才进入工作模式
+    float temp_volt = 0.0f;
+    do {
+        temp_volt = (float)INA219_ReadBusVoltage(&ina219_1_h) / 1000;
+    } while (temp_volt < THRESHOLD_VOLTAGE);
+    ST7789_SetBacklight(0); //关闭背光，在加载动画之前不显示控件初始状态
+
 	ui_init();
-
-	// lv_demo_benchmark();
-	/*
-	 * TODO: 检测到所有口失效一分钟之后关闭屏幕显示，停止lvgl刷新，进入低功耗模式（？）
-	 * TODO：每隔1s检测一次四口电压，有效时恢复显示
-	 */
-
-	INA219_Init(&ina219_1_h, INA219_I2C_HANDLE, INA219_ADDR_PORT1);
-	INA219_Init(&ina219_2_h, INA219_I2C_HANDLE, INA219_ADDR_PORT2);
-	INA219_Init(&ina219_3_h, INA219_I2C_HANDLE, INA219_ADDR_PORT3);
-	INA219_Init(&ina219_4_h, INA219_I2C_HANDLE, INA219_ADDR_PORT4);
 
 	info_lb1 = new info_label(&ina219_1_h, uic_pl_port1, uic_lb_port1, uic_pl_shade_1, LB_PORT1_ACT_COLOR, LB_ZERO_COLOR, THRESHOLD_VOLTAGE, MAX_CURRENT_MA);
 	info_lb2 = new info_label(&ina219_2_h, uic_pl_port2, uic_lb_port2, uic_pl_shade_2, LB_PORT2_ACT_COLOR, LB_ZERO_COLOR, THRESHOLD_VOLTAGE, MAX_CURRENT_MA);
@@ -89,8 +104,6 @@ int main() {
 	arr_info_label.push_back(info_lb2);
 	arr_info_label.push_back(info_lb3);
 	arr_info_label.push_back(info_lb4);
-
-	//info_lb1->set_label_mask_pos(0.5);
 
 	//数据刷新定时器
 	refresh_timer = lv_timer_create(refresh_data_cb, DATA_REFRESH_INTER, nullptr);

@@ -170,7 +170,7 @@ void ST7789_Init(void)
 #endif
 	gpio_init(BLK_PIN);
 	gpio_set_dir(BLK_PIN, GPIO_OUT);
-	ST7789_SetBacklight(0);
+	ST7789_SetBacklight(1);
 
 	spi_init(ST7789_SPI_PORT, 65000000);	//最大速度62.5MHz
 	gpio_set_function(ST7789_SDA_PIN, GPIO_FUNC_SPI);
